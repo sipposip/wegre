@@ -1,92 +1,235 @@
 # weg_re-code
 
+## deltaquad drone data conversion
+
+The raw log data from the deltaquad UAV comes in ehe .ulg format (https://dev.px4.io/v1.9.0_noredirect/en/log/ulog_file_format.html)
+
+Deltaquad recommended FlightPlot https://github.com/PX4/FlightPlot/releases/download/0.3.2/flightplot.jar.zip to
+to convert to .kml format, but this does not work. Also displaying does not seem to work
 
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+pyFlightAnalysis (https://github.com/Marxlp/pyFlightAnalysis) works for displaying.
+### installing pyFlightAnalysis
+at least on ubuntu,the steps in the repo are not sufficient (dependency problems)
 ```
-cd existing_repo
-git remote add origin https://gitlab.know-center.tugraz.at/sscher/weg_re-code.git
-git branch -M main
-git push -uf origin main
+conda create -n deltaquad-env
+conda activate deltaquad-env
+conda install -y ipython
+pip install pyqtgraph==0.10.0
+pip install  pyOpenGL pyulog matplotlib numpy
+pip install PyQt5
+pip install simplekml
+git clone https://github.com/Marxlp/pyFlightAnalysis.git
+python setup.py install
+```
+then start the tool with typing
+```commandline
+analysis
 ```
 
-## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.know-center.tugraz.at/sscher/weg_re-code/-/settings/integrations)
 
-## Collaborate with your team
+## pyulog
+https://github.com/PX4/pyulog/blob/master/README.md
+pyulog is a command line tool for inspecting and converting .ulg files.
+Installation: follow installation of pyFlightAnalysis, then it is automatically installed.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-## Test and Deploy
+### most important commands
+```bash
+ulog2csv ifile -o outdir
+```
+converts to (multiple) .csv files
 
-Use the built-in continuous integration in GitLab.
+```bash
+ulog2kml ifile -o ofile
+```
+converts to kml file
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Command Line Scripts
+below info from the README of pyulog.
 
-***
+All scripts are installed as system-wide applications (i.e. they be called on the command line without specifying Python or a system path), and support the `-h` flag for getting usage instructions.
 
-# Editing this README
+The sections below show the usage syntax and sample output (from [test/sample.ulg](test/sample.ulg)): 
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+###  Display information from an ULog file (ulog_info)
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Usage:
+```bash
+usage: ulog_info [-h] [-v] file.ulg
 
-## Name
-Choose a self-explaining name for your project.
+Display information from an ULog file
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+positional arguments:
+  file.ulg       ULog input file
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Verbose output
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Example output:
+```bash
+$ ulog_info sample.ulg
+Logging start time: 0:01:52, duration: 0:01:08
+Dropouts: count: 4, total duration: 0.1 s, max: 62 ms, mean: 29 ms
+Info Messages:
+ sys_name: PX4
+ time_ref_utc: 0
+ ver_hw: AUAV_X21
+ ver_sw: fd483321a5cf50ead91164356d15aa474643aa73
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Name (multi id, message size in bytes)    number of data points, total bytes
+ actuator_controls_0 (0, 48)                 3269     156912
+ actuator_outputs (0, 76)                    1311      99636
+ commander_state (0, 9)                       678       6102
+ control_state (0, 122)                      3268     398696
+ cpuload (0, 16)                               69       1104
+ ekf2_innovations (0, 140)                   3271     457940
+ estimator_status (0, 309)                   1311     405099
+ sensor_combined (0, 72)                    17070    1229040
+ sensor_preflight (0, 16)                   17072     273152
+ telemetry_status (0, 36)                      70       2520
+ vehicle_attitude (0, 36)                    6461     232596
+ vehicle_attitude_setpoint (0, 55)           3272     179960
+ vehicle_local_position (0, 123)              678      83394
+ vehicle_rates_setpoint (0, 24)              6448     154752
+ vehicle_status (0, 45)                       294      13230
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Display logged messages from an ULog file (ulog_messages)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Usage:
+```
+usage: ulog_messages [-h] file.ulg
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Display logged messages from an ULog file
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+positional arguments:
+  file.ulg    ULog input file
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+optional arguments:
+  -h, --help  show this help message and exit
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Example output:
+```
+ubuntu@ubuntu:~/github/pyulog/test$ ulog_messages sample.ulg
+0:02:38 ERROR: [sensors] no barometer found on /dev/baro0 (2)
+0:02:42 ERROR: [sensors] no barometer found on /dev/baro0 (2)
+0:02:51 ERROR: [sensors] no barometer found on /dev/baro0 (2)
+0:02:56 ERROR: [sensors] no barometer found on /dev/baro0 (2)
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Extract parameters from an ULog file (ulog_params)
 
-## License
-For open source projects, say how it is licensed.
+Usage:
+```
+usage: ulog_params [-h] [-d DELIMITER] [-i] [-o] file.ulg [params.txt]
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Extract parameters from an ULog file
+
+positional arguments:
+  file.ulg              ULog input file
+  params.txt            Output filename (default=stdout)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DELIMITER, --delimiter DELIMITER
+                        Use delimiter in CSV (default is ',')
+  -i, --initial         Only extract initial parameters
+  -o, --octave          Use Octave format
+```
+
+Example output (to console):
+```
+ubuntu@ubuntu:~/github/pyulog/test$ ulog_params sample.ulg
+ATT_ACC_COMP,1
+ATT_BIAS_MAX,0.0500000007451
+ATT_EXT_HDG_M,0
+...
+VT_OPT_RECOV_EN,0
+VT_TYPE,0
+VT_WV_LND_EN,0
+VT_WV_LTR_EN,0
+VT_WV_YAWR_SCL,0.15000000596
+```
+
+### Convert ULog to CSV files (ulog2csv)
+
+Usage:
+```
+usage: ulog2csv [-h] [-m MESSAGES] [-d DELIMITER] [-o DIR] file.ulg
+
+Convert ULog to CSV
+
+positional arguments:
+  file.ulg              ULog input file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MESSAGES, --messages MESSAGES
+                        Only consider given messages. Must be a comma-
+                        separated list of names, like
+                        'sensor_combined,vehicle_gps_position'
+  -d DELIMITER, --delimiter DELIMITER
+                        Use delimiter in CSV (default is ',')
+  -o DIR, --output DIR  Output directory (default is same as input file)
+```
+
+
+### Convert ULog to KML files (ulog2kml)
+
+> **Note** The `simplekml` module must be installed on your computer. If not already present, you can install it with:
+  ```
+  pip install simplekml
+  ```
+
+Usage:
+```
+usage: ulog2kml [-h] [-o OUTPUT_FILENAME] [--topic TOPIC_NAME]
+                [--camera-trigger CAMERA_TRIGGER]
+                file.ulg
+
+Convert ULog to KML
+
+positional arguments:
+  file.ulg              ULog input file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT_FILENAME, --output OUTPUT_FILENAME
+                        output filename
+  --topic TOPIC_NAME    topic name with position data
+                        (default=vehicle_gps_position)
+  --camera-trigger CAMERA_TRIGGER
+                        Camera trigger topic name (e.g. camera_capture)
+```
+
+### Convert ULog to rosbag files (ulog2rosbag)
+
+> **Note** You need a ROS environment with `px4_msgs` built and sourced.
+
+Usage:
+```
+usage: ulog2rosbag [-h] [-m MESSAGES] file.ulg result.bag
+
+Convert ULog to rosbag
+
+positional arguments:
+  file.ulg              ULog input file
+  result.ulg            rosbag output file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MESSAGES, --messages MESSAGES
+                        Only consider given messages. Must be a comma-
+                        separated list of names, like
+                        'sensor_combined,vehicle_gps_position'
+```
+
+
+
+
+
