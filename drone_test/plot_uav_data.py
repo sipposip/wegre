@@ -5,7 +5,7 @@ import numpy as np
 from pylab import plt
 from mpl_toolkits import mplot3d
 
-from read_uav_data import read_uav_data
+from read_uav_data import read_imet_data
 
 date = '20220503'
 for flight_number in ('LOG03', 'LOG04', 'LOG05', 'LOG06', 'LOG07'):
@@ -15,7 +15,7 @@ for flight_number in ('LOG03', 'LOG04', 'LOG05', 'LOG06', 'LOG07'):
 
     ifile = f'{date}/{flight_number}.txt'
 
-    df = read_uav_data(ifile)
+    df = read_imet_data(ifile)
     plt.figure()
     plt.scatter(df['lon'], df['lat'], c=df['t'])
     plt.colorbar()
@@ -35,7 +35,7 @@ for flight_number in ('LOG03', 'LOG04', 'LOG05', 'LOG06', 'LOG07'):
 flight_number = "LOG06"
 ifile = f'{date}/{flight_number}.txt'
 
-df = read_uav_data(ifile)
+df = read_imet_data(ifile)
 # remove all "weird" lat and lons
 df = df.query('lon > 180')
 plt.figure()

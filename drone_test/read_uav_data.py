@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def read_uav_data(filename):
+def read_imet_data(filename):
     records = []
     with open(filename, 'r') as f:
         lines = f.readlines()
