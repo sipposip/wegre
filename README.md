@@ -231,5 +231,29 @@ optional arguments:
 
 
 
+## mavic drone flight data conversion
+
+more info here: https://mavicpilots.com/threads/mavic-flight-log-retrieval-and-analysis-guide.78627/
+
+(part of) the mavic drone data (internal sensors etc) are logged on the phone that was used as a controller.
+It is stored as .dat files, and can be converted and displayed with this tool:
+https://datfile.net/CsvView/downloads.html
+runs as java application on linux and mac, and as binary on windows.
+when the DJI pilot app is used, the data is on the phone under
+/Phone/DJI/com.dji.industry.pilot/MCDatFlightRecords/
+
+there are also .txt files under /Phone/Android/data/com.dji.industry.pilot/files/DJI/com.dji.industry.pilot/FlightRecord$ 
+, but they seem to be encrypted
+
+
+## mavic drone android apps
+the app that is probably best for is is the DJI Pilot app. It is, however, buggy.
+on my private phone it did not work from the playstore, and I had to install it manually from the dji website.
+on my KC-phone I could install it, but the map would not display at first. However, after entering manual flight mode
+once, the map also showed in Mission Flight mode.
+With this app one can plan flights ahead, but it seems relatively limited.
+another potential alternative would be Litchi https://flylitchi.com/
+
+
 
 

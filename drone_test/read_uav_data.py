@@ -31,7 +31,7 @@ def read_imet_data(filename):
                     'h': int(sample[3]),
                     'UNKNOWN???': int(sample[4]),
                     # we combine date and time into one entry
-                    'date': pd.to_datetime(sample[6] + '-' + sample[7]),
+                    'datetime': pd.to_datetime(sample[6] + '-' + sample[7]),
                     'lat': int(sample[8]) / 1000000,
                     'lon': int(sample[9]) / 1000000,
                     'alt': int(sample[10]) / 1000
@@ -43,4 +43,19 @@ def read_imet_data(filename):
             records.append(sample_dic)
 
     df = pd.DataFrame(records, index=np.arange(len(records)))
+    return df
+
+
+def read_deltaquad_position_data(filename, round_time=False):
+    """read the position data from the deltaquad drone from the vehicle_gps_position_0.csv file obtained with
+    ulog2csv"""
+    # ifile = f'data/{flightnumber}/{flightnumber}_vehicle_gps_position_0.csv'
+    df = pd.read_csv(filename, sep=',')
+    df['datetime'] = df['time_utc_usec'].apply(pd.Timestamp, unit='us')
+
+    if round_time:
+        # round time, and select the first occurence (since we now might have rows with the same time)
+        df['datetime'] = df['datetime'].dt.round(round_time)
+        df = df.groupby('datetime').head(1).reset_index()
+
     return df
