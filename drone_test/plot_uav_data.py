@@ -9,6 +9,9 @@ import argparse
 
 import pandas as pd
 import numpy as np
+import matplotlib
+
+matplotlib.use('agg')
 from pylab import plt
 from mpl_toolkits import mplot3d
 
@@ -18,15 +21,13 @@ from read_uav_data import read_imet_data, read_deltaquad_position_data
 
 intaractive = not hasattr(main, '__file__')
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument('date', type=str, help='date (=foldername) of imet')
 parser.add_argument('flight_number_imet', type=str, help='filename of imet log (e.g. LOG06)')
-parser.add_argument('flight_number_deltaquad', type=str, help='optional. number (=foldername and filename)'
-                                                               ' of deltaquad log (e.g. 11_31_28)',
+parser.add_argument('flight_number_deltaquad', type=str,
+                    help='optional. number of deltaquad log (without .ulg extension), placed in ./data/'
+                         ' of deltaquad log (e.g. 11_31_28)',
                     default='none', nargs='?')
-
 
 if intaractive:
     date = '20220503'
@@ -37,7 +38,6 @@ else:
     date = args.date
     flight_number_imet = args.flight_number_imet
     flight_nnumber_deltaquad = args.flight_number_deltaquad
-
 
 plotdir = f'plots/{date}/{flight_number_imet}'
 os.makedirs(plotdir, exist_ok=True)
@@ -75,7 +75,7 @@ plt.scatter(df['lon'], df['lat'], c=df['alt'])
 cb = plt.colorbar()
 cb.set_label('alt')
 plt.plot(df['lon'], df['lat'])
-plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-lat-lon-alt_detailed.svg')
+plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-lat-lon-alt_imetvalidcoords.svg')
 
 fig = plt.figure(figsize=(8, 8))
 ax = plt.axes(projection='3d')
@@ -87,7 +87,7 @@ ax.set_ylabel('lat')
 ax.set_zlabel('alt')
 cb = plt.colorbar(cf)
 cb.set_label('t')
-plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-3D-lat-lon-alt-t_detailed.svg')
+plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-3D-lat-lon-alt-t_imetvalidcoords.svg')
 
 n_vars = df.shape[1]
 plt.figure(figsize=(10, 20))
@@ -96,11 +96,15 @@ for i in range(n_vars):
     plt.plot(df[df.keys()[i]])
     plt.ylabel(df.keys()[i])
 plt.xlabel('step')
-plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-overviewplot-onlyvalid.svg')
-plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-overviewplot-onlyvalid.png')
+plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-overviewplot-imetvalidcoords.svg')
+plt.savefig(f'{plotdir}/{date}-{flight_number_imet}-overviewplot-imetvalidcoords.png')
 
 # read in corresponding deltaquad file
 if flight_nnumber_deltaquad != 'none':
+
+    res = os.system(f'ulog2csv  -o data/{flight_nnumber_deltaquad} data/{flight_nnumber_deltaquad}.ulg')
+    if res != 0:
+        raise Exception('ulog conversion failed!')
     df_dq_raw = read_deltaquad_position_data(ifile_dq, round_time='1s')
 
     # find common datetimes
