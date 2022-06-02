@@ -1,5 +1,14 @@
 # weg_re-code
 
+
+## uav analysis requirements
+```commandline
+conda create -n uav-analysis-env
+conda activate uav-analysis-env
+conda install ipython numpy pandas seaborn matplotlib
+pip install pyulog
+```
+
 ## deltaquad drone data conversion
 
 The raw log data from the deltaquad UAV comes in ehe .ulg format (https://dev.px4.io/v1.9.0_noredirect/en/log/ulog_file_format.html)
